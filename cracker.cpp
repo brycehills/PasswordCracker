@@ -45,7 +45,7 @@ string hashfunction(string hash, string password, string salt)
 	//If i is not divisible by 7, password
 	//If i is even, password
 	//If i is odd, Intermediatei
-	//At this point you don’t need Intermediatei anymore.
+	//At this point you donâ€™t need Intermediatei anymore.
 
 	return hash;
 }
