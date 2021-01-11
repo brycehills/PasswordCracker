@@ -4,55 +4,52 @@ import hashlib #library to implement md5
 def encrypt(pw, salt,magic):
 	#initialization
 	#***************************************************************************
-	#get altsum
-	alternateSum = pw + salt + pw
+	alternateSum = pw + salt + pw #get altsum
 	hashedAlternateSum = hashlib.md5(alternateSum.encode('utf-8')).hexdigest()
-
-	#compute the intermidiate sum
-	intermidiateSum = pw + magic + salt
+	res = pw + magic + salt		#compute the intermidiate sum
+	l = len(pw)	# get len(pw) -- should be 6 in our case
 	
-	# get len(pw) in bytes
-	passwordLength = len(pw.encode('utf-8'))
-	
-	# add length(password) bytes of the Alternate sum, repeated as necessary
-	for i in range(len(hashedAlternateSum)):
-		intermidiateSum += hashedAlternateSum[i:passwordLength]
+	# append length of password of hashed alt sum to res
+	while l > 0:
+		res = res + hashedAlternateSum[0:min(16,l)]
+		l = l - 16
 		
+	l = len(pw) #reset l
+	
 	# For each bit in length(password), from low to high and stopping after the most signicant set bit
-	for i in range(passwordLength):
-		if i & 1:
-			#append null byte - chr(0) is null char - not encoded at this point (Still str)
-			intermidiateSum += chr(0)
+	while l:
+		if l & 1:
+			res += '\x00' # append null chr
 		else:
-			#append 1st pw byte - still string here
-			intermidiateSum += pw[0:1]
+			res += pw[0:1] # append first bit of pw
+		l >>= 1
 	
 	# hash final concatenated version of int sum
-	hashedIntermidiateSum = hashlib.md5(intermidiateSum.encode('utf-8')).hexdigest()
+	hashedres = hashlib.md5(res.encode('utf-8')).hexdigest()
 	#***************************************************************************
 	
 	
 	
 	#********************************** LOOP ***********************************
-	loopintermidiate = "" # str for loop intermidiate
+	loopres = "" # str for loop intermidiate
 	for i in range(1000):
-		if i&1: loopintermidiate += pw
-		else: loopintermidiate += hashedIntermidiateSum # should this be hashed version or regular string?
+		if i&1: loopres += pw
+		else: loopres += hashedres # should this be hashed version or regular string?
 		
-		if i%3: loopintermidiate += salt
+		if i%3: loopres += salt
 		
-		if i%7: loopintermidiate += pw
+		if i%7: loopres += pw
 	
-		if i&1: loopintermidiate += hashedIntermidiateSum
-		else: loopintermidiate += pw
+		if i&1: loopres += hashedres
+		else: loopres += pw
 		
-		hashedIntermidiateSum = hashlib.md5(loopintermidiate.encode('utf-8')).hexdigest()
+		hashedres = hashlib.md5(loopres.encode('utf-8')).hexdigest()
 	#***************************************************************************
 	
 	
 	# testing purposes
 	print("hashed alternate sum: " + hashedAlternateSum + "\n")
-	print("hashed intermidate sum: " + hashedIntermidiateSum + "\n")
+	print("hashed intermidate sum: " + hashedres + "\n")
 
 #define magic
 magic = "$1$"
