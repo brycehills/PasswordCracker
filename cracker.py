@@ -2,8 +2,8 @@ import sys
 import hashlib #library to implement md5
 
 def encrypt(pw, salt,magic):
-	#initialization
-	#***************************************************************************
+
+	#*******************************initialization******************************
 	alternateSum = pw + salt + pw #get altsum
 	hashedAlternateSum = hashlib.md5(alternateSum.encode('utf-8')).hexdigest()
 	res = pw + magic + salt		#compute the intermidiate sum
