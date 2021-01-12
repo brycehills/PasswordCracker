@@ -1,30 +1,29 @@
 import sys
 import hashlib #library to implement md5
+import binascii # for hex conversion
 
-def encrypt(pw, salt,magic):
+def encrypt(pw, salt, magic):
   
 	#*******************************initialization******************************
 	alt = pw + salt + pw        #get alt
-	
 	res = pw + magic + salt		#compute res
 	print("res = " + res)
 	
 	h = hashlib.md5(alt.encode()).hexdigest()
-	print("h = " + h)
-	
+	print("h= " + h)
 	
 	l = len(pw)	# get len(pw) -- should be 6 in our case
 	print("l = " + str(l))
 	
-	# append h[0:pwlength] to res
 	while l > 0:
 		res = res + h[0:min(16,l)]
 		l = l - 16
 		
-	print("res after 1st while loop = " + res)
-	print(res.encode().hex())
-	l = len(pw) #reset l
+	print("\nres after 1st while loop = " + res)
+	print("in hex: " + str(res.encode().hex()))
+	print("\n")
 	
+	l = len(pw) #reset l
 	# For each bit in length(password), from low to high 
 	while l:
 		if l & 1:
@@ -34,10 +33,10 @@ def encrypt(pw, salt,magic):
 		l>>= 1
 		
 	print("res after 2nd while loop = " + res)
-	print(res.encode().hex())
-	
-	# hash concatenated version of res
-	hashedres = hashlib.md5(res.encode()).hexdigest()
+	print("in hex: " + str(res.encode().hex()))
+	print("\n")
+
+	hashedres = hashlib.md5(res.encode()).hexdigest() # hash concatenated version of res
 	
 	print("hashedres = " + hashedres)
 	#***************************************************************************
