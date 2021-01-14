@@ -22,14 +22,22 @@ def encrypt(pw, salt, magic):
 	print("\nres after 1st while loop = " + str(res))
 	print("\n")
 	
+	res1comp = b'x7a\x68\x67\x6e\x6e\x64\x24\x31\x24\x68\x66\x54\x37\x6a\x70\x32\x71\x3f\xfc\x86\xe7\xc7\x8f'
+	
+	if res == res1comp:
+		print('res match')
+	else:
+		print('res no match')	
+	
+	
 	l = len(pw) #reset l
-	# For each bit in length(password), from low to high 
+	# For each bit in length(password), from low to high bits
 	while l:
 		if l & 1:
 			res += b'\x00' # append null chr
 		else:
 			res += pw[0:1] # append first bit of pw
-		l>>= 1
+		l>>= 1 #shiftleft
 		
 	print("res after 2nd while loop = " + str(res))
 	print("\n")
@@ -37,6 +45,14 @@ def encrypt(pw, salt, magic):
 	hashedres = hashlib.md5(res).digest() # hash concatenated version of res
 	
 	print("hashedres = " + str(hashedres))
+	
+	# test strings
+	compRes = b'xed\x7a\x53\x07\x58\x8e\x49\xed\x3a\x27\x77\xd9\x26\xd6\x2f\x96'
+	
+	if res == compRes:
+		print('match')
+	else:
+		print('no match')
 	#***************************************************************************
 	
 	
@@ -64,8 +80,8 @@ def encrypt(pw, salt, magic):
 
 #define magic
 magic = b'$1$'
-pw=b'\x7a\x68\x67\x6e\x6e\x64'
-salt=b'\x68\x66\x54\x37\x6a\x70\x32\x71'
+pw = b'\x7a\x68\x67\x6e\x6e\x64'
+salt = b'\x68\x66\x54\x37\x6a\x70\x32\x71'
 # prompt user for input pw and salt
 #pw = input("Enter password: ")
 #salt = input("Enter salt: ")
