@@ -80,22 +80,20 @@ alphabets = ['w', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n
 
 for (a,b,c,d,e,f) in combinations_with_replacement(alphabets, 6):
 	password = a+b+c+d+e+f
+	print("guessing: " + password)
 	password = password.encode()
 	res = initialization(password,salt,magic)
 	res = loop(res,password,salt)
-	print("after loop: " + str(res))
 	res = reorder(password,salt,magic,res)
-	print("after reorder: " + str(res))
 	res = int(binascii.hexlify(res),16) #convert res to int for encoding
-	print("after conversion to int: " + str(res))
 	res = to64(res)
-	print("after to64: " + str(res))
 
-	if("$1$" + "hfT7jp2q" + str(res) == shadowHash):
-		print("$1$" + "hfT7jp2q" + str(res) + "is equal to " + shadowHash)
+	if("$1$" + "hfT7jp2q" + "$" + str(res) == shadowHash):
+		print("$1$" + "hfT7jp2q$" + str(res) + "is equal to " + shadowHash)
 		print("The password is: " + password)
 		break
-
+	else:
+		print("$1$" + "hfT7jp2q$" + str(res) + "is NOT equal to " + shadowHash)
 
 
 
