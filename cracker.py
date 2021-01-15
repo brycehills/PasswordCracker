@@ -3,6 +3,7 @@ import hashlib  # library to implement md5
 import binascii # for hex conversion
 from itertools import product
 from string import ascii_lowercase
+from itertools import permutations as p
 from itertools import combinations_with_replacement
 
 
@@ -64,6 +65,7 @@ def to64(v):
 		tmp += base64[v&0x3f]
 		v>>=6
 	return tmp
+
 	
 #define input variables
 magic = b'$1$'
@@ -76,24 +78,31 @@ base64 = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 #comp string for final hash
 shadowHash = "$1$hfT7jp2q$SCjB3qfVsSh5Mg3.e07mi/"
 
-alphabets = ['w', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'a', 'x', 'y', 'z']
+words = ['w','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','a','x','y','z']
 
-for (a,b,c,d,e,f) in combinations_with_replacement(alphabets, 6):
-	password = a+b+c+d+e+f
-	print("guessing: " + password)
-	password = password.encode()
-	res = initialization(password,salt,magic)
-	res = loop(res,password,salt)
-	res = reorder(password,salt,magic,res)
-	res = int(binascii.hexlify(res),16) #convert res to int for encoding
-	res = to64(res)
+	
+while("$1$" + "hfT7jp2q" + "$" + str(res) != shadowHash):
+	for a in words:
+		for b in words:
+			for c in words:
+				for d in words:
+					for e in words:
+						for f in words:
+							password = str((a+b+c+d+e+f))	
+							print("guessing: " + password)
+							password = password.encode()
+							res = initialization(password,salt,magic)
+							res = loop(res,password,salt)
+							res = reorder(password,salt,magic,res)
+							res = int(binascii.hexlify(res),16) #convert res to int for encoding
+							res = to64(res)
 
-	if("$1$" + "hfT7jp2q" + "$" + str(res) == shadowHash):
-		print("$1$" + "hfT7jp2q$" + str(res) + "is equal to " + shadowHash)
-		print("The password is: " + password)
-		break
-	else:
-		print("$1$" + "hfT7jp2q$" + str(res) + "is NOT equal to " + shadowHash)
+							if("$1$" + "hfT7jp2q" + "$" + str(res) == shadowHash):
+								print("$1$" + "hfT7jp2q$" + str(res) + " is equal to " + shadowHash)
+								print("The password is: " + password)
+								sys.exit()
+							else:
+								print("$1$" + "hfT7jp2q$" + str(res) + " is NOT equal to " + shadowHash)
 
 
 
