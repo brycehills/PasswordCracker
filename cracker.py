@@ -47,22 +47,46 @@ def loop(hashedres,pw,salt):
 	return hashedres
 	
 		
-def finalization(pw,salt,magic,finalsum):
-	return to64()
+def reorder(pw,salt,magic,finalsum):
+	tmp = b""
+	order = [11, 4, 10, 5, 3, 9, 15, 2, 8, 14, 1, 7, 13, 0, 6, 12]
+	for i in order: #reorder finalsum
+		tmp += finalsum[i:i+1]	
+	return tmp
 
 
-#define magic
+def to64(v):
+	tmp = ""
+	for i in range(22):
+		tmp += base64[v&0x3f]
+		v>>=6
+	return tmp
+	
+#define input variables
 magic = b'$1$'
 pw = b'\x7a\x68\x67\x6e\x6e\x64'
 salt = b'\x68\x66\x54\x37\x6a\x70\x32\x71'
 res = b''
+base64 = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+
+
+#comp string for final hash
+shadowHash = b'$1$hfT7jp2q$SCjB3qfVsSh5Mg3.e07mi/'
+
 # prompt user for input pw and salt
 #pw = input("Enter password: ")
 #salt = input("Enter salt: ")
 print("\n")
 res = initialization(pw,salt,magic)
 res = loop(res,pw,salt)
-print(str(res))
+print("after loop: " + str(res))
+res = reorder(pw,salt,magic,res)
+print("after reorder: " + str(res))
+res = int(binascii.hexlify(res),16) #convert res to int for encoding
+print("after conversion to int: " + str(res))
+res = to64(res)
+print("after to64: " + str(res))
+
 
 
 
