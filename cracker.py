@@ -1,9 +1,12 @@
 import sys
 import hashlib  # library to implement md5
 import binascii # for hex conversion
+from itertools import product
+from string import ascii_lowercase
+from itertools import combinations_with_replacement
+
 
 def initialization(pw, salt, magic):
-
 	alt = pw + salt + pw
 	res = pw + magic + salt
 	
@@ -71,22 +74,27 @@ base64 = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
 
 #comp string for final hash
-shadowHash = b'$1$hfT7jp2q$SCjB3qfVsSh5Mg3.e07mi/'
+shadowHash = "$1$hfT7jp2q$SCjB3qfVsSh5Mg3.e07mi/"
 
-# prompt user for input pw and salt
-#pw = input("Enter password: ")
-#salt = input("Enter salt: ")
-print("\n")
-res = initialization(pw,salt,magic)
-res = loop(res,pw,salt)
-print("after loop: " + str(res))
-res = reorder(pw,salt,magic,res)
-print("after reorder: " + str(res))
-res = int(binascii.hexlify(res),16) #convert res to int for encoding
-print("after conversion to int: " + str(res))
-res = to64(res)
-print("after to64: " + str(res))
+alphabets = ['w', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'a', 'x', 'y', 'z']
 
+for (a,b,c,d,e,f) in combinations_with_replacement(alphabets, 6):
+	password = a+b+c+d+e+f
+	password = password.encode()
+	res = initialization(password,salt,magic)
+	res = loop(res,password,salt)
+	print("after loop: " + str(res))
+	res = reorder(password,salt,magic,res)
+	print("after reorder: " + str(res))
+	res = int(binascii.hexlify(res),16) #convert res to int for encoding
+	print("after conversion to int: " + str(res))
+	res = to64(res)
+	print("after to64: " + str(res))
+
+	if("$1$" + "hfT7jp2q" + str(res) == shadowHash):
+		print("$1$" + "hfT7jp2q" + str(res) + "is equal to " + shadowHash)
+		print("The password is: " + password)
+		break
 
 
 
