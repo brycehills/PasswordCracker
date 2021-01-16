@@ -1,11 +1,9 @@
-import sys
+import sys,numpy
 import hashlib  # library to implement md5
 import binascii # for hex conversion
+import time
 from itertools import product
 from string import ascii_lowercase
-from itertools import permutations as p
-from itertools import combinations_with_replacement
-
 
 def initialization(pw, salt, magic):
 	alt = pw + salt + pw
@@ -32,7 +30,6 @@ def initialization(pw, salt, magic):
 	
 	return hashedres
 	
-
 def loop(hashedres,pw,salt):
 	for i in range(1000):
 		tmp = b"" 					# tmp str
@@ -50,7 +47,7 @@ def loop(hashedres,pw,salt):
 		
 	return hashedres
 	
-		
+#@jit		
 def reorder(pw,salt,magic,finalsum):
 	tmp = b""
 	order = [11, 4, 10, 5, 3, 9, 15, 2, 8, 14, 1, 7, 13, 0, 6, 12]
@@ -58,7 +55,7 @@ def reorder(pw,salt,magic,finalsum):
 		tmp += finalsum[i:i+1]	
 	return tmp
 
-
+#@njit(parallel = True)
 def to64(v):
 	tmp = ""
 	for i in range(22):
@@ -68,41 +65,50 @@ def to64(v):
 
 	
 #define input variables
+guesses = 0
+start_time = time.clock()
+
 magic = b'$1$'
 pw = b'\x7a\x68\x67\x6e\x6e\x64'
-salt = b'\x68\x66\x54\x37\x6a\x70\x32\x71'
+samplesalt = b'\x68\x66\x54\x37\x6a\x70\x32\x71'
+salt = b'4fTgjp6q'
 res = b''
 base64 = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-
-
 #comp string for final hash
-shadowHash = "$1$hfT7jp2q$SCjB3qfVsSh5Mg3.e07mi/"
+shadowHash = "$1$4fTgjp6q$RhNhei1Mem7zJ9xTv1HSc/"
+alphabet = ['w','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','a','x','y','z']
+alphabet2 = ['w','z','y','x','a','v','u','t','s','r','q','p','m','n','o','l','k','j','i','h','g','f','e','d','c','b']
+alphabet3 = ['n','r','y','x','h','v','u','t','s','z','q','p','m','w','o','l','k','j','i','a','g','f','e','d','c','b']
+alphabet4 = ['o','r','m','d','h','v','y','t','s','z','q','p','u','w','n','l','k','j','i','a','g','f','e','x','c','b']
+alphabet5 = ['q','g','m','d','h','v','y','t','s','z','o','p','u','w','n','l','k','j','i','a','r','f','e','x','c','b']
+alphabet6 = ['c','q','t','b','h','v','y','d','s','z','l','p','u','w','n','r','o','j','i','a','g','f','e','x','c','m']
 
-words = ['w','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','a','x','y','z']
-
-	
-while("$1$" + "hfT7jp2q" + "$" + str(res) != shadowHash):
-	for a in words:
-		for b in words:
-			for c in words:
-				for d in words:
-					for e in words:
-						for f in words:
-							password = str((a+b+c+d+e+f))	
-							print("guessing: " + password)
+while("$1$" + "4fTgjp6q" + "$" + str(res) != shadowHash):
+	for a in alphabet6:
+		for b in alphabet6:
+			for c in alphabet6:
+				for d in alphabet6:
+					for e in alphabet6:
+						for f in alphabet6:
+							password = str(a+b+c+d+e+f)
+							print("guessing: " + str(password))
 							password = password.encode()
 							res = initialization(password,salt,magic)
 							res = loop(res,password,salt)
 							res = reorder(password,salt,magic,res)
 							res = int(binascii.hexlify(res),16) #convert res to int for encoding
 							res = to64(res)
-
-							if("$1$" + "hfT7jp2q" + "$" + str(res) == shadowHash):
-								print("$1$" + "hfT7jp2q$" + str(res) + " is equal to " + shadowHash)
-								print("The password is: " + password)
+							guesses+=1 #increment # of passwords guessed
+							print(str(guesses))
+							if("$1$4fTgjp6q$" + str(res) == shadowHash):
+								print("$1$" + "4fTgjp6q$" + str(res) + " is equal to " + shadowHash)
+								print("\nThe password is: " + str(password))
+								print("# of guesses: " + str(guesses))
+								totalTime =  (time.clock() - start_time)
+								print("Throughput = " + str(guesses/totalTime) + " guesses per second")
 								sys.exit()
 							else:
-								print("$1$" + "hfT7jp2q$" + str(res) + " is NOT equal to " + shadowHash)
+								print("$1$" + "4fTgjp6q$" + str(res) + " is NOT equal to " + shadowHash)
 
 
 
